@@ -63,3 +63,12 @@ LOCATION_DECK = {30, 740}
 LOCATION_DISCARD = {1070, 740}
 
 
+
+LOCATION_LIST = {
+  LOC1 = {},
+  LOC2 = {},
+  LOC3 = {},
+  HAND = {},
+  DECK = {},
+  DISCARD = {}
+}

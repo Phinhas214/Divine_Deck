@@ -6,6 +6,10 @@ function GameBoard:init()
   self.playerDeck = {}
   self.AIDeck = {}
   
+  self.playArea = {}
+  self.hands = {}
+  self.discardPile = {}
+  
   self.pickedUpCards = {}
   self.cardPickedUp = false
   
@@ -32,6 +36,10 @@ function GameBoard:draw()
   
   for i=1, #self.playerDeck do
     self.playerDeck[i]:draw()
+  end
+  
+  for i=1, #self.playArea do
+    self.playArea[i]:draw()
   end
   
   for i=1, #self.pickedUpCards do

@@ -28,18 +28,15 @@ function love.update(dt)
   gameBoard:update()
   
   
-  
   -- reset mouse flags at the end of each update cycle
-  love.mouse.buttonsPressed[1] = false
-  love.mouse.buttonsReleased[1] = false
+  love.mouse.buttonsPressed = {}
+  love.mouse.buttonsReleased = {}
 end
 
 function love.draw()
   
   gameBoard:draw()
   
-  local testCard = Card("Zeus", 50, 50)
-  -- testCard:draw()
 end
 
 

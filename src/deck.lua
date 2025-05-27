@@ -8,7 +8,7 @@ function Deck:init()
   
   for id, data in pairs(cardData) do
     -- import sprites
-    table.insert(self.cards, Card(id, 50, 50))
+    table.insert(self.cards, Card(id, 50, 50, LOCATION_LIST.DECK))
     
   end
   

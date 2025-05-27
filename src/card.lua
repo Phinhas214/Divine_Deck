@@ -2,17 +2,19 @@
 
 Card = Class{}
 
-function Card:init(id, x, y)
+function Card:init(id, x, y, loc)
   self.id = id
   
   self.x = x
   self.y = y
   
+  self.location = loc
+  
   self.hidden = false
   self.pickedUp = false
   
-  self.originalX = nil
-  self.originalY = nil
+  self.originalX = self.x
+  self.originalY = self.y
   
 end
 
@@ -24,7 +26,7 @@ function Card:update()
     self.y = self.y - CARD_HEIGHT/2
   end
   
-  if love.mouse.wasButtonPressed(1) then
+  if not self.pickedUp and love.mouse.wasButtonPressed(1) then
     
     local x, y = love.mouse.getPosition()
     
@@ -33,10 +35,10 @@ function Card:update()
     end
     
     
-  elseif love.mouse.wasButtonReleased(1) then
+  elseif self.pickedUp and love.mouse.wasButtonReleased(1) then
     self.pickedUp = false
     gameBoard.cardPickedUp = false 
-    self.placeDown()
+    self:placeDown()
   end
   
   
@@ -95,24 +97,33 @@ function Card:isValidPosition(x, y)
 end
 
 function Card:placeDown()
-  local x, y = love.mouse.getPosition()
+  local mouseX, mouseY = love.mouse.getPosition()
   
-  local returnVal = self:isValidPosition(x, y)
-  local isValid = returnVal[1] -- 1 = position is valid, 0 = position is not valid
-  local x = returnVal[2][1]
-  local y = returnVal[2][2]
+  local isValid, pos = self:isValidPosition(mouseX, mouseY) -- 1 = position is valid, 0 = position is not valid
+  
   
   if isValid == 1 then
+    local x = pos[1]
+    local y = pos[2]
+    
     self.x = x
     self.y = y
     
     self.originalX = self.x
     self.originalY = self.y
     
+    table.insert(gameBoard.playArea, self)
+    removeValue(gameBoard.pickedUpCards, self)
+    
   else 
     self.x = self.originalX
     self.y = self.originalY
+    
+    table.insert(gameBoard.playerDeck, self)
+    removeValue(gameBoard.pickedUpCards, self)
   end
+  
+  gameBoard.pickedUpCards = {}
   
 end
 
