@@ -1,21 +1,22 @@
-Card Name	Cost	Power	Text
-Wooden Cow	1	1	Vanilla
-Pegasus	3	5	Vanilla
-Minotaur	5	9	Vanilla
-Titan	6	12	Vanilla
-Zeus	4	6	When Revealed: Lower the power of each card in your opponent’s hand by 1.
-Ares	4	4	When Revealed: Gain +2 power for each enemy card here.
-Medusa	3	4	When ANY other card¯ is played here, lower that card’s power by 1.
-Cyclops	3	2	When Revealed: Discard your other cards here, gain +2 power for each discarded.
-Poseidon	4	5	When Revealed: Move away an enemy card here with the lowest power.
-Artemis	3	3	When Revealed: Gain +5 power if there is exactly one enemy card here.
-Hera	3	3	When Revealed: Give cards in your hand +1 power.
-Hades	5	5	When Revealed: Gain +2 power for each card in your discard pile.
-Hercules	5	6	When Revealed: Doubles its power if it’s the strongest card here.
-Dionysus	4	3	When Revealed: Gain +2 power for each of your other cards here.
-Hermes	2	3	When Revealed: Moves to another location.
-Hydra	3	4	Add two copies to your hand when this card is discarded.
-Aphrodite	3	4	When Revealed: Lower the power of each enemy card here by 1.
-Apollo	2	3	When Revealed: Gain +1 mana next turn.
-Persephone	2	4	When Revealed: Discard the lowest power card in your hand.
-Prometheus	3	4	When Revealed: Draw a card from your opponent’s deck.
+cardData
+Card Name,Cost,Power,Text
+Wooden Cow,1,1,Vanilla
+pegasus,3,5,Vanilla
+minotaur,5,9,Vanilla
+titan,6,12,Vanilla
+zeus,4,6,When Revealed: Lower the power of each card in your opponent’s hand by 1.
+ares,4,4,When Revealed: Gain +2 power for each enemy card here.
+medusa,3,4,"When ANY other card¯ is played here, lower that card’s power by 1."
+cyclops,3,2,"When Revealed: Discard your other cards here, gain +2 power for each discarded."
+poseidon,4,5,When Revealed: Move away an enemy card here with the lowest power.
+artemis,3,3,When Revealed: Gain +5 power if there is exactly one enemy card here.
+hera,3,3,When Revealed: Give cards in your hand +1 power.
+hades,5,5,When Revealed: Gain +2 power for each card in your discard pile.
+hercules,5,6,When Revealed: Doubles its power if it’s the strongest card here.
+dionysus,4,3,When Revealed: Gain +2 power for each of your other cards here.
+hermes,2,3,When Revealed: Moves to another location.
+hydra,3,4,Add two copies to your hand when this card is discarded.
+aphrodite,3,4,When Revealed: Lower the power of each enemy card here by 1.
+apollo,2,3,When Revealed: Gain +1 mana next turn.
+persephone,2,4,When Revealed: Discard the lowest power card in your hand.
+prometheus,3,4,When Revealed: Draw a card from your opponent’s deck.
