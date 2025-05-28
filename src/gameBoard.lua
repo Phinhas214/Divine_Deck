@@ -34,14 +34,25 @@ function GameBoard:draw()
   
   self:drawBackground()
   
+  -- draw deck pile
   for i=1, #self.playerDeck do
     self.playerDeck[i]:draw()
   end
   
+  -- draw cards in the three play locations
   for i=1, #self.playArea do
     self.playArea[i]:draw()
   end
   
+--  for _, cards in ipairs(self.hands) do
+--    cards:draw()
+--  end
+  
+  for i = 1, #self.hands do
+    self.hands[i]:draw()
+  end
+  
+  -- draw picked up cards separately
   for i=1, #self.pickedUpCards do
     self.pickedUpCards[i]:draw()
   end
@@ -56,14 +67,32 @@ end
 
 function GameBoard:update()
   
+  self:cleanInvalidCards()
+  
   if #self.playerDeck > 0 then
     self.playerDeck[#self.playerDeck]:update()
   end
   
+--  for i=1, #self.hands do
+--    self.hands[i]:update()
+--  end  
+  
+  for i = 1, #self.hands do
+    if self.hands[i] ~= nil then
+      self.hands[i]:update()
+    else
+      print("Warning: self.hands[" .. i .. "] is nil")
+    end
+  end
   
   for i=1, #self.pickedUpCards do
     self.pickedUpCards[i]:update()
   end
+  
+  
+--  for _, cards in ipairs(self.pickedUpCards) do
+--    cards:update()
+--  end
   
 end
 

@@ -4,11 +4,11 @@ Class = require "lib/class"
 
 require "src/constants"
 
+require "src/gameBoard"
+
 require "src/card"
 
 require "src/deck"
-
-require "src/gameBoard"
 
 require "src/util"
 

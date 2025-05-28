@@ -33,3 +33,14 @@ function removeValue(tbl, val)
   end
   
 end
+
+
+
+function GameBoard:cleanInvalidCards()
+  for i = #self.hands, 1, -1 do
+    if self.hands[i] == nil or type(self.hands[i].update) ~= "function" then
+      print("Removing invalid hand at index", i)
+      table.remove(self.hands, i)
+    end
+  end
+end
