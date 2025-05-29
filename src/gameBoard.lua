@@ -111,6 +111,7 @@ end
 
 
 function GameBoard:setText(card)
+  love.graphics.setColor(1, 1, 1)
   
   local cardCost = card.cost
   local cardPower = card.power
@@ -159,7 +160,7 @@ end
 
 function GameBoard:drawBackground()
   
-  love.graphics.setColor(1, 1, 1)
+  
   self:renderLayoutDividers()
   
   self:renderAILocations()
@@ -180,6 +181,8 @@ end
 
 
 function GameBoard:renderLayoutDividers()
+  -- love.graphics.setColor(1, 1, 1)
+  love.graphics.setColor(0.35, 0.21, 0.36, 1)
   --dividers
   love.graphics.line(0, 375, 900, 375)
   love.graphics.line(900, 0, 900, 700)
@@ -199,6 +202,7 @@ end
 
 
 function GameBoard:renderAILocations()
+  love.graphics.setColor(0.35, 0.21, 0.36, 1)
   for i=1, 4 do
     local x = LOCATION_AI_1[i][1]
     local y = LOCATION_AI_1[i][2]
