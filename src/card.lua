@@ -2,7 +2,7 @@
 
 Card = Class{}
 
-function Card:init(id, x, y, loc, pile)
+function Card:init(id, x, y, loc, pile, cost, power, text)
   self.id = id
   
   self.x = x
@@ -17,6 +17,10 @@ function Card:init(id, x, y, loc, pile)
   self.originalY = self.y
   
   self.originalPile = pile or nil
+  
+  self.cost = cost
+  self.power = power
+  self.text = text
 
 end
 
@@ -210,9 +214,9 @@ function Card:placeDown(valid, pos, cardLocation)
     
   end
   
-  print("deck: " .. #gameBoard.playerDeck)
-  print("hand: " .. #gameBoard.hands)
-  print("play locations: " .. #gameBoard.playArea)
+--  print("deck: " .. #gameBoard.playerDeck)
+--  print("hand: " .. #gameBoard.hands)
+--  print("play locations: " .. #gameBoard.playArea)
 
   removeValue(gameBoard.pickedUpCards, self)
   
