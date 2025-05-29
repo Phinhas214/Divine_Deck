@@ -13,21 +13,12 @@ function GameBoard:init()
   self.pickedUpCards = {}
   self.cardPickedUp = false
   
+  self.hoveredCard = nil
+  
   self:generatePlayerDeck()
 end
 
-function GameBoard:generatePlayerDeck()
-  -- insert 20 cards
-  local initialDeck = Deck()
-  self.playerDeck = initialDeck.cards
-  
-  for i=1, CARDS_PER_DECK do
-    local x = LOCATION_DECK[1]
-    local y = LOCATION_DECK[2]
-    self.playerDeck[i].x = x
-    self.playerDeck[i].y = y
-  end
-end
+
 
 
 function GameBoard:draw()
@@ -36,7 +27,12 @@ function GameBoard:draw()
   
   -- TODO: if mouse hover over card set text to card info
   -- TODO: pass card as a parameter
-  self:setText()
+  local tempCard = {
+    cost = "",
+    power = "",
+    text = "Hover over any card to show details."
+  }
+  self:setText(self.hoveredCard or tempCard)
   
   -- draw deck pile
   for i=1, #self.playerDeck do
@@ -60,16 +56,43 @@ function GameBoard:draw()
 end
 
 function GameBoard:update()
+  self.hoveredCard = nil -- reset before checking
   
-  self:cleanInvalidCards()
+  local mouseX, mouseY = love.mouse.getPosition()
+  -- check hover over hand cards and play area cards
+  -- TODO: extend this functionality later to AI cards too
+  for _, card in ipairs(self.hands) do
+    if checkMouseOver(mouseX, mouseY, card.x, card.y) then
+      self.hoveredCard = card
+      break
+    end
+  end
+  
+  if not self.hoveredCard then
+    for i, card in ipairs(self.playArea) do
+      if checkMouseOver(mouseX, mouseY, card.x, card.y) then
+        self.hoveredCard = card
+        break
+      end
+    end
+  end
+  
+  if not self.hoveredCard then
+    for i, card in ipairs(self.playerDeck) do
+      if checkMouseOver(mouseX, mouseY, card.x, card.y) then
+        self.hoveredCard = card
+        break
+      end
+    end
+  end
+  
+  
+  
   
   if #self.playerDeck > 0 then
     self.playerDeck[#self.playerDeck]:update()
   end
-  
---  for i=1, #self.hands do
---    self.hands[i]:update()
---  end  
+
   
   for i = 1, #self.hands do
     if self.hands[i] ~= nil then
@@ -82,45 +105,43 @@ function GameBoard:update()
   for i=1, #self.pickedUpCards do
     self.pickedUpCards[i]:update()
   end
-  
-  
---  for _, cards in ipairs(self.pickedUpCards) do
---    cards:update()
---  end
+
   
 end
 
 
-function GameBoard:setText()
+function GameBoard:setText(card)
+  
+  local cardCost = card.cost
+  local cardPower = card.power
+  local description = card.text
+  
   
   love.graphics.setFont(font)
   
   love.graphics.printf("Player", 915, 10, 275, 'left')
   love.graphics.printf("Enemy", 905, 10, 275, 'right')
-  local playerPoints = 15
-  local AIPoints = 10
+  local playerPoints = 0
+  local AIPoints = 0
   love.graphics.printf(playerPoints, 915, 50, 275, 'left')
   love.graphics.printf(AIPoints, 905, 50, 275, 'right')
   
   love.graphics.printf("Mana", 915, 110, 275, 'left')
-  local playerMana = 4
+  local playerMana = 0
   love.graphics.printf(playerMana, 915, 150, 275, 'left')
   
   love.graphics.printf("Turn", 905, 110, 275, 'right')
-  local turnNum = 4
+  local turnNum = 0
   love.graphics.printf(turnNum, 905, 150, 275, 'right')
   
   
   love.graphics.printf("Cost", 915, 208, 275, 'left')
-  local cardCost = 2
   love.graphics.printf(cardCost, 915, 248, 275, 'left')
   
   love.graphics.printf("Power", 905, 208, 275, 'right')
-  local cardPower = 3
   love.graphics.printf(cardPower, 905, 248, 275, 'right')
   
   
-  local description = "Hover over a card for details."
   love.graphics.printf("Card Description", 915, 315, 275, 'center')
   love.graphics.printf(description, 915, 350, 275, 'left')
   
@@ -229,3 +250,15 @@ end
 
 
 
+function GameBoard:generatePlayerDeck()
+  -- insert 20 cards
+  local initialDeck = Deck()
+  self.playerDeck = initialDeck.cards
+  
+  for i=1, CARDS_PER_DECK do
+    local x = LOCATION_DECK[1]
+    local y = LOCATION_DECK[2]
+    self.playerDeck[i].x = x
+    self.playerDeck[i].y = y
+  end
+end
