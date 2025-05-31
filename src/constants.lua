@@ -7,6 +7,26 @@ CARDS_PER_DECK = 20
 CARD_WIDTH = 100
 CARD_HEIGHT = 150
 
+TURN_STATE = {
+  PLAYER = 1,
+  SUBMITTED = 2,
+  AI_PLAY = 3,
+  REVEAL = 4,
+  CLEANUP = 5
+}
+
+LOCATION_LIST = {
+  LOC1 = 1,
+  LOC2 = 2,
+  LOC3 = 3,
+  DECK = 4,
+  HAND = 5,
+  DISCARD = 6
+}
+
+LOCATION_DECK = {30, 740}
+LOCATION_DISCARD = {1070, 740}
+
 LOCATION_AI_1 = {
   [1] = {50, 30},
   [2] = {160, 30},
@@ -59,16 +79,6 @@ LOCATION_PLAYER_HAND = {
   [7] = {880, 740}
 }
 
-LOCATION_DECK = {30, 740}
-LOCATION_DISCARD = {1070, 740}
 
 
 
-LOCATION_LIST = {
-  LOC1 = 1,
-  LOC2 = 2,
-  LOC3 = 3,
-  DECK = 4,
-  HAND = 5,
-  DISCARD = 6
-}

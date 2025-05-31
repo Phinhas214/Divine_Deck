@@ -68,7 +68,11 @@ end
 function Card:draw()
   
   if cardImages[self.id] then
-    love.graphics.draw(cardImages[self.id], self.x, self.y)
+    if self.hidden == false then
+      love.graphics.draw(cardImages[self.id], self.x, self.y)
+    else 
+      love.graphics.draw(backImage, self.x, self.y)
+    end
   else
     print("Missing image for card ID:", self.id)
   end
