@@ -57,8 +57,6 @@ function Card:update()
     
     local isValid, pos, locationToSnap = self:isValidPosition(x, y) -- 1 = position is valid, 0 = position is not valid
     
-    -- print("is Valid: " .. isValid .. " at position: " .. pos[1] .. ", " .. pos[2] .. " card Location: " .. locationToSnap)
-    
     self:placeDown(isValid, pos, locationToSnap)
   end
   
@@ -135,6 +133,23 @@ function Card:isValidPosition(x, y)
   
 end
 
+function Card:translatePositionToLocation(cardLocation) 
+  if cardLocation == 1 then
+    return LOCATION_PLAYER_1
+  elseif cardLocation == 2 then
+    return LOCATION_PLAYER_2
+  elseif cardLocation == 3 then
+   return LOCATION_PLAYER_3
+   
+  elseif cardLocation == 4 then
+    return LOCATION_DECK
+  elseif cardLocation == 5 then
+    return LOCATION_PLAYER_HAND
+  elseif cardLocation == 6 then
+    return LOCATION_DISCARD
+  end
+end
+
 
 function Card:translatePositionToPile(cardLocation)
   
@@ -155,29 +170,45 @@ function Card:translatePositionToPile(cardLocation)
   
 end
 
+function Card:revertToOriginal()
+  self.x = self.originalX
+  self.y = self.originalY
+  
+  table.insert(self.originalPile, self)
+  removeValue(gameBoard.pickedUpCards, self)
+end
+
 function Card:placeDown(valid, pos, cardLocation)
   local mouseX, mouseY = love.mouse.getPosition()
   
   local cardPile = self:translatePositionToPile(cardLocation)
+  local cardPosToSnap = self:translatePositionToLocation(cardLocation)
   
+  -- checks if you can afford the card
+  local isPlayArea = (
+    cardPosToSnap == LOCATION_PLAYER_1 or 
+    cardPosToSnap == LOCATION_PLAYER_2 or 
+    cardPosToSnap == LOCATION_PLAYER_3
+  )
   
-  -- return card to original position is mouse position is not valid
+  -- return card to original position is mouse position is not valid or you don't have enough mana
   if valid ~= 1 then
-    self.x = self.originalX
-    self.y = self.originalY
-    
-    table.insert(self.originalPile, self)
-    -- table.insert(gameBoard.playerDeck, self)
-    removeValue(gameBoard.pickedUpCards, self)
-    
+    print("Card slot already occupied.")
+    self:revertToOriginal()
     return
   end
   
-  local x = pos[1]
-  local y = pos[2]
+  print("Mana:", gameBoard.playerMana, "Cost:", self.cost)
+  print("cardLocation: " .. cardLocation)
+  if isPlayArea and gameBoard.playerMana < self.cost then
+    print("Not enough mana to play this card")
+    self:revertToOriginal()
+    return
+  end
+  
+ 
   
   -- check if there's a card in the pile that has the same self.x and self.y values as x and y
-  
   for i=1, #cardPile do
     if cardPile[i].x == x and cardPile[i].y == y then
       self.x = self.originalX
@@ -190,6 +221,9 @@ function Card:placeDown(valid, pos, cardLocation)
       return
     end
   end
+  
+  local x = pos[1]
+  local y = pos[2]
   
   self.x = x
   self.y = y
@@ -206,15 +240,17 @@ function Card:placeDown(valid, pos, cardLocation)
   elseif cardLocation == LOCATION_LIST.HAND then
     table.insert(gameBoard.hands, self)
     
-    
   elseif cardLocation == LOCATION_LIST.LOC1 then
     table.insert(gameBoard.playArea, self)
+    gameBoard.playerMana = gameBoard.playerMana - self.cost
     
   elseif cardLocation == LOCATION_LIST.LOC2 then
     table.insert(gameBoard.playArea, self)
+    gameBoard.playerMana = gameBoard.playerMana - self.cost
     
   elseif cardLocation == LOCATION_LIST.LOC3 then
     table.insert(gameBoard.playArea, self)
+    gameBoard.playerMana = gameBoard.playerMana - self.cost
     
   end
   

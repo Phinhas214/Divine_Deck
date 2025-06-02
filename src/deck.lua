@@ -8,8 +8,8 @@ function Deck:init()
   
   for id, data in pairs(cardData) do
     -- import sprites
-    local cost = data[1]
-    local power = data[2]
+    local cost = tonumber(data[1])
+    local power = tonumber(data[2])
     local text = data[3]
     table.insert(self.cards, Card(id, 50, 50, LOCATION_LIST.DECK, nil, cost, power, text))
     

@@ -20,6 +20,13 @@ function GameBoard:init()
   self.hoveredCard = nil
   self.currentGameState = TURN_STATE.PLAYER
   
+  self.playerMana = 1
+  self.AIMana = 1
+  self.playerPoints = 0
+  self.AIPoints = 0
+  
+  self.turnNum = 1
+  
   self:generatePlayerDeck()
   self:generateAIDeck()
   
@@ -123,8 +130,13 @@ function GameBoard:update()
     end
   end
   
-  if self:isSubmitClicked(mouseX, mouseY) then
+  if self:isSubmitClicked(mouseX, mouseY) and self.currentGameState == TURN_STATE.PLAYER then
+    self.currentGameState = TURN_STATE.SUBMITTED
     self:submitTurn()
+  end
+  
+  if self.currentGameState == TURN_STATE.REVEAL then
+    self:revealCards()
   end
   
   
@@ -158,7 +170,6 @@ function GameBoard:isSubmitClicked(mouseX, mouseY)
   local isHover = mouseX >= buttonX and mouseX <= buttonX + buttonWidth and mouseY >= buttonY and mouseY <= buttonY + buttonHeight
   
   if isHover and love.mouse.wasButtonPressed(1) then
-    print("submit button clicked!!!")
     return true
   end
   
@@ -180,34 +191,96 @@ function GameBoard:randomAILocation()
 end
 
 function GameBoard:submitTurn()
-  -- flip player cards face down before AI plays
+  -- 1. flip player cards face down before AI plays
   for _, card in ipairs(self.playArea) do
     card.hidden = true
+    print("hide player cards")
   end
   
-  -- AI selects random cards from its hand
-  local randomIndex = math.random(#self.AIDeck)
-  local card = table.remove(self.AIDeck, randomIndex)
-   -- pick a random AI location 
-  local randomLocation = self:randomAILocation()
-  local maxTries = 12
-  local tries = 0
   
-   -- check if there's already a card placed at randomLocation
+  -- 2. Try to find a valid card the AI can afford
+  local validCard = nil
+  local maxAttempts = #self.AIDeck
+  local attempts = 0
+  
+  while attempts < maxAttempts do
+    local index = math.random(#self.AIDeck)
+    local candidate = self.AIDeck[index]
+    
+    if candidate.cost <= self.AIMana then
+      validCard = table.remove(self.AIDeck, index)
+      break
+    end
+    
+    attempts = attempts + 1
+  end
+  
+  if not validCard then
+    print("AI has no affordable cards.")
+    self.currentGameState = TURN_STATE.REVEAL
+    return
+  end
+  
+  -- 3. pick a random location for the card
+  local randomLocation = self:randomAILocation()
+  local locationTries = 0
+  
+  -- check if there's already a card placed at randomLocation
   while self:inArray(self.AIPlayArea, randomLocation) and #self.AIPlayArea < 12 do
     randomLocation = self:randomAILocation()
-    tries = tries + 1
+    locationTries = locationTries + 1
   end
   
-  if #self.AIPlayArea > 11 then
-    print("AI Location Full!!")
+  if locationTries == 12 then
+    print("AI play area full. Can't place more cards.")
+    table.insert(self.AIDeck, validCard)
+    
+    self.currentGameState = TURN_STATE.REVEAL
+    return
   end
+ 
   
-  -- place card in random Location
-  card.x, card.y = randomLocation[1], randomLocation[2]
-  table.insert(self.AIPlayArea, card)
+  -- 4. place card in random Location and finalize
+  validCard.x, validCard.y = randomLocation[1], randomLocation[2]
+  validCard.hidden = true
   
+  table.insert(self.AIPlayArea, validCard)
+  self.AIMana = self.AIMana - validCard.cost
+  
+  self.currentGameState = TURN_STATE.REVEAL
 end
+
+function GameBoard:revealCards()
+  local playerPoints = 0
+  local AIPoints = 0
+  for _, card in ipairs(self.playArea) do
+    card.hidden = false
+    playerPoints = playerPoints + card.power
+    print("reveal player cards")
+  end
+  
+  for _, card in ipairs(self.AIPlayArea) do
+    card.hidden = false
+    AIPoints = AIPoints + card.power
+  end
+  
+  local totalPoints = playerPoints - AIPoints
+  if totalPoints > 0 then
+    self.playerPoints = self.playerPoints + totalPoints
+  elseif totalPoints < 0 then
+    self.AIPoints = self.AIPoints + math.abs(totalPoints)
+  end
+  
+  -- process card effects here
+  print("process card effects here")
+  
+  self.currentGameState = TURN_STATE.PLAYER
+  self.turnNum = self.turnNum + 1
+  self.playerMana = self.turnNum
+  self.AIMana = self.turnNum
+  print("go to cleanup state")
+end
+
 
 
 function GameBoard:setText(card)
@@ -224,18 +297,16 @@ function GameBoard:setText(card)
   
   love.graphics.printf("Player", 915, 10, 275, 'left')
   love.graphics.printf("Enemy", 905, 10, 275, 'right')
-  local playerPoints = 0
-  local AIPoints = 0
-  love.graphics.printf(playerPoints, 915, 50, 275, 'left')
-  love.graphics.printf(AIPoints, 905, 50, 275, 'right')
+  
+  
+  love.graphics.printf(self.playerPoints, 915, 50, 275, 'left')
+  love.graphics.printf(self.AIPoints, 905, 50, 275, 'right')
   
   love.graphics.printf("Mana", 915, 110, 275, 'left')
-  local playerMana = 0
-  love.graphics.printf(playerMana, 915, 150, 275, 'left')
+  love.graphics.printf(self.playerMana, 915, 150, 275, 'left')
   
   love.graphics.printf("Turn", 905, 110, 275, 'right')
-  local turnNum = 0
-  love.graphics.printf(turnNum, 905, 150, 275, 'right')
+  love.graphics.printf(self.turnNum, 905, 150, 275, 'right')
   
   
   love.graphics.setColor(0.7, 0.7, 1)
