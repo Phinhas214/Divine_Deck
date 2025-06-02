@@ -29,7 +29,18 @@ function GameBoard:init()
   
   self:generatePlayerDeck()
   self:generateAIDeck()
+  self:generatePlayerHand()
   
+end
+
+function GameBoard:generatePlayerHand()
+  for i=1, 3 do
+    local card = table.remove(self.playerDeck)
+    card.x = LOCATION_PLAYER_HAND[i][1]
+    card.y = LOCATION_PLAYER_HAND[i][2]
+    card.hidden = false
+    table.insert(self.hands, card)
+  end
 end
 
 -- returns if x val is in array
@@ -437,6 +448,7 @@ function GameBoard:generatePlayerDeck()
     local y = LOCATION_DECK[2]
     self.playerDeck[i].x = x
     self.playerDeck[i].y = y
+    self.playerDeck[i].hidden = true
   end
 end
 

@@ -81,21 +81,20 @@ end
 
 function Card:pickUp(cardLocation, pile)
   
-  self.pickedUp = true
-  gameBoard.cardPickedUp = true
+  
   
   self.originalX = self.x
   self.originalY = self.y
   self.originalPile = pile
-  
-  table.insert(gameBoard.pickedUpCards, self)
-  -- table.remove(gameBoard.playerDeck, #gameBoard.playerDeck)
-  if cardLocation == LOCATION_LIST.DECK then
-    removeValue(gameBoard.playerDeck, self)
+
     
-  elseif cardLocation == LOCATION_LIST.HAND then
+  if cardLocation == LOCATION_LIST.HAND then
+    table.insert(gameBoard.pickedUpCards, self)
     removeValue(gameBoard.hands, self)
   end
+  
+  self.pickedUp = true
+  gameBoard.cardPickedUp = true
   
 
 end
