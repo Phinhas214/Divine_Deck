@@ -24,6 +24,23 @@ function Card:init(id, x, y, loc, pile, cost, power, text)
 
 end
 
+function Card:clone()
+  return Card(
+    self.id, 
+    self.x,
+    self.y,
+    self.location,
+    self.originalPile,
+    self.originalX,
+    self.originalY,
+    self.hidden,
+    self.pickedUp,
+    self.cost,
+    self.power,
+    self.text
+  )
+end
+
 function Card:setPileLocToDeck()
   self.originalPile = gameBoard.playerDeck
 end
@@ -81,7 +98,7 @@ end
 
 function Card:pickUp(cardLocation, pile)
   
-  
+  print(self.location)
   
   self.originalX = self.x
   self.originalY = self.y
@@ -197,8 +214,8 @@ function Card:placeDown(valid, pos, cardLocation)
     return
   end
   
-  print("Mana:", gameBoard.playerMana, "Cost:", self.cost)
-  print("cardLocation: " .. cardLocation)
+  -- print("Mana:", gameBoard.playerMana, "Cost:", self.cost)
+  -- print("cardLocation: " .. cardLocation)
   if isPlayArea and gameBoard.playerMana < self.cost then
     print("Not enough mana to play this card")
     self:revertToOriginal()
@@ -227,6 +244,7 @@ function Card:placeDown(valid, pos, cardLocation)
   self.x = x
   self.y = y
   self.location = cardLocation
+  self.hidden = false
   
   self.originalX = self.x
   self.originalY = self.y

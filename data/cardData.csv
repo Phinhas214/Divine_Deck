@@ -1,17 +1,17 @@
 cardData
 Card Name,Cost,Power,Text
-Wooden Cow,1,1,Vanilla
+Wooden_Cow,1,1,Vanilla
 pegasus,3,5,Vanilla
 minotaur,5,9,Vanilla
 titan,6,12,Vanilla
-zeus,4,6,When Revealed: Lower the power of each card in your opponent’s hand by 1.
+zeus,4,6,When Revealed: Lower the power of each card in your opponent's locations by 1.
 ares,4,4,When Revealed: Gain +2 power for each enemy card here.
-medusa,3,4,"When ANY other card¯ is played here, lower that card’s power by 1."
+medusa,3,4,"When ANY other card is played here, lower that card’s power by 1."
 cyclops,3,2,"When Revealed: Discard your other cards here, gain +2 power for each discarded."
 poseidon,4,5,When Revealed: Move away an enemy card here with the lowest power.
 artemis,3,3,When Revealed: Gain +5 power if there is exactly one enemy card here.
 hera,3,3,When Revealed: Give cards in your hand +1 power.
-hades,5,5,When Revealed: Gain +2 power for each card in your discard pile.
+hades,5,5,When Revealed: Gain +2 power for each card in the discard pile.
 hercules,5,6,When Revealed: Doubles its power if it’s the strongest card here.
 dionysus,4,3,When Revealed: Gain +2 power for each of your other cards here.
 hermes,2,3,When Revealed: Moves to another location.
