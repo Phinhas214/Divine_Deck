@@ -160,8 +160,11 @@ function GameBoard:update()
   end
   
   
+  -- TODO: Fix this to automatically draw from deck to hand each turn
   if #self.playerDeck > 0 then
-    self.playerDeck[#self.playerDeck]:update()
+    for i=#self.playerDeck, 1, -1 do
+      self.playerDeck[i]:update()
+    end
   end
 
   
@@ -215,24 +218,29 @@ function GameBoard:randomPlayerLocation()
   local randIndex = math.random(1, 4)
   
   if randSeed == 1 then
-    return LOCATION_Player_1[randIndex], 1
+    return LOCATION_PLAYER_1[randIndex], 1
   elseif randSeed == 2 then
-    return LOCATION_Player_2[randIndex], 2
+    return LOCATION_PLAYER_2[randIndex], 2
   elseif randSeed == 3 then
-    return LOCATION_Player_3[randIndex], 3
+    return LOCATION_PLAYER_3[randIndex], 3
   end
   
 end
 
 function GameBoard:discardCard(card)
-  -- TODO: add hydra condition here
-  if card.name == "hydra" then
-    CardEffects[card.name](card, gameBoard)
+  
+  
+  if card.id == "hydra" then
+    CardEffects[card.id](card, gameBoard)
   end
   card.x = LOCATION_DISCARD[1]
   card.y = LOCATION_DISCARD[2]
   card.location = LOCATION_LIST.DISCARD
   table.insert(gameBoard.discardPile, card)
+  
+  for i=1, #gameBoard.discardPile do
+    print("discarded card: " .. gameBoard.discardPile[i].id)
+  end
 end
 
 
@@ -293,13 +301,11 @@ function GameBoard:submitTurn()
   -- print("ai loc: " .. locationID)
   validCard.originalPile = self.AIPlayArea 
   
-  Card(id, 50, 50, LOCATION_LIST.DECK, nil, cost, power, text)
-  Card:init(id, x, y, loc, pile, cost, power, text)
-  
   table.insert(self.AIPlayArea, validCard)
   self.AIMana = self.AIMana - validCard.cost
   
   self.currentGameState = TURN_STATE.REVEAL
+  
 end
 
 function GameBoard:revealCards()
@@ -327,18 +333,21 @@ function GameBoard:revealCards()
   print("process player card effects here")
   for i=1, #self.playArea do
     local card = self.playArea[i]
-    CardEffects[card.id:lower()](card, gameBoard)
+    if card ~= nil then
+      CardEffects[card.id:lower()](card, gameBoard)
+    end
+    
   end
   
   
   print("process AI card effects here")
   for i=1, #self.AIPlayArea do
     local card = self.AIPlayArea[i]
-    print("ID: " .. card.id)
-    CardEffects[card.id:lower()](card, gameBoard)
+    if card ~= nil then
+      print("ID: " .. card.id)
+      CardEffects[card.id:lower()](card, gameBoard)
+    end
   end
-  
-  
   
   self.currentGameState = TURN_STATE.PLAYER
   

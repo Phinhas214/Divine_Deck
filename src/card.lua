@@ -98,7 +98,7 @@ end
 
 function Card:pickUp(cardLocation, pile)
   
-  print(self.location)
+  --print(self.location)
   
   self.originalX = self.x
   self.originalY = self.y

@@ -1,7 +1,7 @@
 
 
 CardEffects = {
-  -- TODP: fix sapcing issue when read from cardData.csv
+  -- TODO: fix sapcing issue when read from cardData.csv
   wooden_cow = function(card, gameBoard)
     print("wooden cow")
     print("vanilla")
@@ -70,12 +70,12 @@ CardEffects = {
     print("When ANY other card is played here, lower that card’s power by 1.")
     
     for i=1, #gameBoard.playArea do
-      if gameBoard.playArea[i].location == card.location then
+      if gameBoard.playArea[i].location == card.location and gameBoard.playArea[i] ~= card then
         gameBoard.playArea[i].power = gameBoard.playArea[i].power - 1
       end
     end
     for i=1, #gameBoard.AIPlayArea do
-      if gameBoard.AIPlayArea[i].location == card.location then
+      if gameBoard.AIPlayArea[i].location == card.location and gameBoard.AIPlayArea[i] ~= card then
         gameBoard.AIPlayArea[i].power = gameBoard.AIPlayArea[i].power - 1
       end
     end
@@ -87,9 +87,10 @@ CardEffects = {
     local powerGained = 0
     
     if card.originalPile == gameBoard.AIPlayArea then
-      for i=1, #gameBoard.AIPlayArea do
-        if gameBoard.AIPlayArea[i].location == card.location then
-          gameBoard.discardCard(gameBoard.AIPlayArea[i])
+      for i = #gameBoard.AIPlayArea, 1, -1 do
+        local c = gameBoard.AIPlayArea[i]
+        if c.location == card.location and c ~= card then
+          gameBoard:discardCard(c)
           table.remove(gameBoard.AIPlayArea, i)
           
           powerGained = powerGained + 2
@@ -97,9 +98,10 @@ CardEffects = {
       end
       
     elseif card.originalPile == gameBoard.playArea then
-      for i=1, #gameBoard.playArea do
-        if gameBoard.playArea[i].location == card.location and gameBoard.playArea[i] ~= card then
-          gameBoard.discardCard(gameBoard.playArea[i])
+      for i = #gameBoard.playArea, 1, -1 do
+        local c = gameBoard.playArea[i]
+        if c.location == card.location and c ~= card then
+          gameBoard:discardCard(c)
           table.remove(gameBoard.playArea, i)
           
           powerGained = powerGained + 2
@@ -140,22 +142,40 @@ CardEffects = {
         end
       end
     end
-    gameBoard:discardCard(card)
-    table.remove(minPowerCard.originalPile, i)
+    
+    if minPowerCard ~= nil then
+      gameBoard:discardCard(minPowerCard)
+      table.remove(minPowerCard.originalPile, minPowerIndex)
+    end
+    
   end,
   
   artemis = function(card, gameBoard)
     print("artemis")
     print("When Revealed: Gain +5 power if there is exactly one enemy card here.")
     
+    local counter = 0
+    
+    
+    
+    
     if card.originalPile == gameBoard.AIPlayArea then
-      if #gameBoard.playArea == 1 then
-        card.power = card.power + 5
+      for i=1, #gameBoard.playArea do
+        if gameBoard.playArea[i].location == card.location then
+          counter = counter + 1
+        end
       end
+      
     elseif card.originalPile == gameBoard.playArea then
-      if #gameBoard.playArea == 1 then
-        card.power = card.power + 5
+      for i=1, #gameBoard.AIPlayArea do
+        if gameBoard.AIPlayArea[i].location == card.location then
+          counter = counter + 1
+        end
       end
+    end
+    
+    if counter == 1 then
+      card.power = card.power + 5
     end
   end,
   
@@ -194,7 +214,7 @@ CardEffects = {
     
     for i=1, #gameBoard.AIPlayArea do
       if card.location == gameBoard.AIPlayArea[i].location then
-        if card.power <= gameBoard.AIPlayArea[i].power then
+        if gameBoard.AIPlayArea[i].power >= card.power then
           return
         end
       end
@@ -202,7 +222,7 @@ CardEffects = {
     
     for i=1, #gameBoard.playArea do
       if card.location == gameBoard.playArea[i].location then
-        if card.power <= gameBoard.playArea[i].power then
+        if gameBoard.playArea[i].power >= card.power then
           return
         end
       end
@@ -220,16 +240,16 @@ CardEffects = {
     
     if card.originalPile == gameBoard.AIPlayArea then
       for i=1, #gameBoard.AIPlayArea do
-        powerGained = powerGained + 2
+        if gameBoard.AIPlayArea[i].location == card.location and gameBoard.AIPlayArea[i] ~= card then
+          powerGained = powerGained + 2
+        end
       end
     elseif card.originalPile == gameBoard.playArea then
       for i=1, #gameBoard.playArea do
-        powerGained = powerGained + 2
+        if gameBoard.playArea[i].location == card.location and gameBoard.playArea[i] ~= card then
+          powerGained = powerGained + 2
+        end
       end
-    end
-    
-    if powerGained > 2 then
-      powerGained = powerGained - 2
     end
     
     card.power = card.power + powerGained
@@ -241,21 +261,24 @@ CardEffects = {
     print("When Revealed: Moves to another location.")
     
     local randPosition = nil
-    local randomLocation = nil
+    local locationID = nil
     
     if card.originalPile == gameBoard.playArea then
-      randPosition, randomLocation = gameBoard.randomPlayerLocation()
+      randPosition, locationID = gameBoard:randomPlayerLocation()
       
-      card.location = randomLocation
-      card.x = randomPosition.x
-      card.y = randomPosition.y
+      print("randPos: " .. Dump(randPosition) .. " randLoc: " .. locationID)
+
+      
+      card.location = locationID
+      card.x = randPosition[1]
+      card.y = randPosition[2]
       
     elseif card.originalPile == gameBoard.AIPlayArea then
-      randPosition, randomLocation = gameBoard.randomAILocation()
+      randPosition, locationID = gameBoard.randomAILocation()
       
-      card.location = randomLocation
-      card.x = randPosition.x
-      card.y = randPosition.y
+      card.location = locationID
+      card.x = randPosition[1]
+      card.y = randPosition[2]
     end
     
   end,
@@ -272,7 +295,7 @@ CardEffects = {
         
         local randIndex = math.random(1, 7)
         local handPos = LOCATION_PLAYER_HAND[randIndex]
-        while gameBoard.inArray(gameBoard.hands, handPos) and #gameBoard.hands < 7 do
+        while gameBoard:inArray(gameBoard.hands, handPos) and #gameBoard.hands < 7 do
           randIndex = math.random(1, 7)
           tries = tries + 1
         end
@@ -282,8 +305,8 @@ CardEffects = {
           return
         end
         
-        clone.x = handPos.x
-        clone.y = handPos.y
+        clone.x = handPos[1]
+        clone.y = handPos[2]
         
         clone.hidden = false
         clone.originalPile = gameBoard.hands 
@@ -372,10 +395,12 @@ CardEffects = {
     if card.originalPile == gameBoard.playArea then
       local stolenCard = table.remove(gameBoard.AIDeck)
       table.insert(gameBoard.playerDeck, stolenCard)
+      print("num of pile after stealing card: " .. #gameBoard.playerDeck)
       
     elseif card.originalPile == gameBoard.AIPlayArea then
       local stolenCard = table.remove(gameBoard.playerDeck)
       table.insert(gameBoard.AIDeck, stolenCard)
+      print("num of pile after stealing card: " .. #gameBoard.AIDeck)
     end
     
   end
