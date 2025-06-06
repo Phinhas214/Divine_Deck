@@ -159,6 +159,10 @@ function GameBoard:update()
     self:revealCards()
   end
   
+  if self.currentGameState == TURN_STATE.CLEANUP then
+    self:cleanUp()
+  end
+  
   
   -- TODO: Fix this to automatically draw from deck to hand each turn
   if #self.playerDeck > 0 then
@@ -200,34 +204,111 @@ function GameBoard:isSubmitClicked(mouseX, mouseY)
 end
 
 function GameBoard:randomAILocation()
-  local randSeed = math.random(1, 3)
-  local randIndex = math.random(1, 4)
+  local locationList = {
+    {LOCATION_AI_1, 1}, 
+    {LOCATION_AI_2, 2}, 
+    {LOCATION_AI_3, 3} 
+  }
   
-  if randSeed == 1 then
-    return LOCATION_AI_1[randIndex], 1
-  elseif randSeed == 2 then
-    return LOCATION_AI_2[randIndex], 2
-  elseif randSeed == 3 then
-    return LOCATION_AI_3[randIndex], 3
+  local tries = 0
+  local maxTries = 48
+  
+  while tries < maxTries do
+    local randSeed = math.random(1, 3)
+    local randIndex = math.random(1, 4)
+    
+    local locationSet, locationID = unpack(locationList[randSeed])
+    local pos = locationSet[randIndex]
+    
+    local occupied = false
+    for _, card in ipairs(self.AIPlayArea) do
+      if card.x == pos[1] and card.y == pos[2] then
+        occupied = true
+      end
+    end
+    
+    if not occupied then
+      return pos, locationID
+    end
+    
+    tries = tries + 1
   end
   
+  print("WARNING: Could not find unoocupied random AI location.")
+  return nil, nil
 end
 
 function GameBoard:randomPlayerLocation()
-  local randSeed = math.random(1, 3)
-  local randIndex = math.random(1, 4)
+  local locationList = {
+    {LOCATION_PLAYER_1, 1}, 
+    {LOCATION_PLAYER_2, 2}, 
+    {LOCATION_PLAYER_3, 3} 
+  }
   
-  if randSeed == 1 then
-    return LOCATION_PLAYER_1[randIndex], 1
-  elseif randSeed == 2 then
-    return LOCATION_PLAYER_2[randIndex], 2
-  elseif randSeed == 3 then
-    return LOCATION_PLAYER_3[randIndex], 3
+  local tries = 0
+  local maxTries = 48
+  
+  while tries < maxTries do
+    local randSeed = math.random(1, 3)
+    local randIndex = math.random(1, 4)
+    
+    local locationSet, locationID = unpack(locationList[randSeed])
+    local pos = locationSet[randIndex]
+    
+    local occupied = false
+    for _, card in ipairs(self.playArea) do
+      if card.x == pos[1] and card.y == pos[2] then
+        occupied = true
+      end
+    end
+    
+    if not occupied then
+      return pos, locationID
+    end
+    
+    tries = tries + 1
   end
   
+  print("WARNING: Could not find unoocupied random player location.")
+  return nil, nil
+end
+
+
+function GameBoard:randomHandLocation()
+  local locationID = LOCATION_LIST.HAND
+  
+  local tries = 0
+  local maxTries = 48
+  
+  while tries < maxTries do
+    local randIndex = math.random(1, 7)
+    local pos = LOCATION_PLAYER_HAND[randIndex]
+    
+    local occupied = false
+    for _, card in ipairs(self.hands) do
+      if card.x == pos[1] and card.y == pos[2] then
+        occupied = true
+        break
+      end
+    end
+    
+
+    if not occupied then
+      return pos, locationID
+    end
+    
+    tries = tries + 1
+  end
+  
+  print("WARNING: Could not find unoocupied random hand location.")
+  return nil, nil
 end
 
 function GameBoard:discardCard(card)
+  if card == nil then
+    print("Warning: nil card passed to discardCard()")
+    return
+  end
   
   
   if card.id == "hydra" then
@@ -236,11 +317,13 @@ function GameBoard:discardCard(card)
   card.x = LOCATION_DISCARD[1]
   card.y = LOCATION_DISCARD[2]
   card.location = LOCATION_LIST.DISCARD
+  card.originalPile = self.discardPile
   table.insert(gameBoard.discardPile, card)
   
   for i=1, #gameBoard.discardPile do
     print("discarded card: " .. gameBoard.discardPile[i].id)
   end
+  
 end
 
 
@@ -349,7 +432,6 @@ function GameBoard:revealCards()
     end
   end
   
-  self.currentGameState = TURN_STATE.PLAYER
   
   self.turnNum = self.turnNum + 1
   self.playerMana = self.turnNum
@@ -361,6 +443,52 @@ function GameBoard:revealCards()
   self.playerBonusManaNextTurn = 0
   self.AIBonusManaNextTurn = 0
   -- print("go to cleanup state")
+  
+  self.currentGameState = TURN_STATE.CLEANUP
+end
+
+
+function GameBoard:cleanUp()
+  -- if card power is zero, then discard the card
+  for i=1, #self.AIPlayArea do
+    if self.AIPlayArea[i].power == 0 then
+      self.discardCard(self.AIPlayArea)
+      table.remove(self.AIPlayArea, i)
+      -- TODO: set card location data here
+    end
+  end
+  
+  for i=1, #self.playArea do
+    if self.playArea[i].power == 0 then
+      self.discardCard(self.playArea)
+      table.remove(self.playArea, i)
+    end
+  end
+  
+  
+  -- Add a card to hand pile before every turn
+  local pos, locationID = self:randomHandLocation()
+  
+  if pos == nil or locationID == nil then
+    self.currentGameState = TURN_STATE.PLAYER
+    return
+  end
+  
+  
+  local transferCard = table.remove(self.playerDeck)
+  table.insert(self.hands, transferCard)
+  -- Card:init(id, x, y, loc, pile, cost, power, text)
+  
+  
+  
+  transferCard.x = pos[1]
+  transferCard.y = pos[2]
+  transferCard.location = locationID
+  transferCard.originalPile = self.hands 
+  transferCard.hidden = false
+  
+  self.currentGameState = TURN_STATE.PLAYER
+  
 end
 
 
