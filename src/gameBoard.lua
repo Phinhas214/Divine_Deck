@@ -312,12 +312,13 @@ function GameBoard:discardCard(card)
   
   
   if card.id == "hydra" then
-    CardEffects[card.id](card, gameBoard)
+    CardEffects[card.id](card, self)
   end
   card.x = LOCATION_DISCARD[1]
   card.y = LOCATION_DISCARD[2]
   card.location = LOCATION_LIST.DISCARD
   card.originalPile = self.discardPile
+  card.hidden = false
   table.insert(gameBoard.discardPile, card)
   
   for i=1, #gameBoard.discardPile do
@@ -450,17 +451,17 @@ end
 
 function GameBoard:cleanUp()
   -- if card power is zero, then discard the card
-  for i=1, #self.AIPlayArea do
+  for i=#self.AIPlayArea, 1, -1 do
     if self.AIPlayArea[i].power == 0 then
-      self.discardCard(self.AIPlayArea)
+      self:discardCard(self.AIPlayArea[i])
       table.remove(self.AIPlayArea, i)
-      -- TODO: set card location data here
     end
   end
   
-  for i=1, #self.playArea do
+  
+  for i=#self.playArea, 1, -1 do
     if self.playArea[i].power == 0 then
-      self.discardCard(self.playArea)
+      self:discardCard(self.playArea[i])
       table.remove(self.playArea, i)
     end
   end
@@ -647,6 +648,8 @@ function GameBoard:generatePlayerDeck()
     local y = LOCATION_DECK[2]
     self.playerDeck[i].x = x
     self.playerDeck[i].y = y
+    self.playerDeck[i].location = LOCATION_LIST.DECK
+    self.playerDeck[i].originalPile = self.playerDeck
     self.playerDeck[i].hidden = true
   end
 end
@@ -662,5 +665,8 @@ function GameBoard:generateAIDeck()
     local y = LOCATION_DECK[2]
     self.AIDeck[i].x = x
     self.AIDeck[i].y = y
+    self.AIDeck[i].location = LOCATION_LIST.DECK
+    self.AIDeck[i].originalPile = self.AIDeck
+    self.AIDeck[i].hidden = true
   end
 end

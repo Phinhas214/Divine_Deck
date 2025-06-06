@@ -266,7 +266,6 @@ CardEffects = {
     if card.originalPile == gameBoard.playArea then
       randPosition, locationID = gameBoard:randomPlayerLocation()
       
-      print("randPos: " .. Dump(randPosition) .. " randLoc: " .. locationID)
 
       
       card.location = locationID
@@ -274,7 +273,7 @@ CardEffects = {
       card.y = randPosition[2]
       
     elseif card.originalPile == gameBoard.AIPlayArea then
-      randPosition, locationID = gameBoard.randomAILocation()
+      randPosition, locationID = gameBoard:randomAILocation()
       
       card.location = locationID
       card.x = randPosition[1]
@@ -286,6 +285,10 @@ CardEffects = {
   hydra = function(card, gameBoard)
     print("hydra")
     print("Add two copies to your hand when this card is discarded.")
+    
+    if card.location ~= LOCATION_LIST.DISCARD then
+      return
+    end
     
      -- we'll clone the card and insert into hand
     if card.originalPile == gameBoard.playArea then
@@ -395,6 +398,11 @@ CardEffects = {
     if card.originalPile == gameBoard.playArea then
       local stolenCard = table.remove(gameBoard.AIDeck)
       table.insert(gameBoard.playerDeck, stolenCard)
+      stolenCard.x = LOCATION_DECK[1]
+      stolenCard.y = LOCATION_DECK[2]
+      stolenCard.location = LOCATION_LIST.DECK
+      stolenCard.originalPile = gameBoard.playerDeck
+      stolenCard.hidden = true
       print("num of pile after stealing card: " .. #gameBoard.playerDeck)
       
     elseif card.originalPile == gameBoard.AIPlayArea then
