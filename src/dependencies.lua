@@ -60,16 +60,15 @@ backImage = {}
   for id, _ in pairs(cardData) do
     -- print(id)
     if id ~= "Card Name" then
-      local fileName = string.format("assets/%s.png", id)
+      local fileName = string.format("assets/card_sprites/%s.png", id)
       cardImages[id] = love.graphics.newImage(fileName)
     end
-    
   end
   
-  -- print(Dump(cardData))
   
-  
-  backImage = love.graphics.newImage("assets/back.png")
+  backImage = love.graphics.newImage("assets/card_sprites/back.png")
+  you_win = love.graphics.newImage("assets/you_win.png")
+  you_lost = love.graphics.newImage("assets/you_lost.png")
   
   
   

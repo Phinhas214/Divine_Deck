@@ -7,7 +7,9 @@ io.stdout:setvbuf("no")
 
 require "src/dependencies"
 
-gameBoard = GameBoard()
+local gameWon = false
+local gameLost = false
+
 
 function love.load()
   
@@ -21,21 +23,47 @@ function love.load()
   love.mouse.buttonsPressed = {}
   love.mouse.buttonsReleased = {}
   
+  gameBoard = GameBoard()
+  
 end
 
 
 function love.update(dt)
-  gameBoard:update()
+  if not gameWon and not gameLost then
+    gameBoard:update()
+    -- reset mouse flags at the end of each update cycle
+    love.mouse.buttonsPressed = {}
+    love.mouse.buttonsReleased = {}
+    
+  end
+  
+  -- win condition check
+  if gameBoard.playerPoints >= 25 and gameBoard.AIPoints >= 25 then
+    if gameBoard.playerPoints > gameBoard.AIPoints then
+      gameWon = true
+    elseif gameBoard.AIPoints > gameBoard.playerPoints then
+      gameLost = true
+    end
+    
+  elseif gameBoard.playerPoints >= 25 then
+    gameWon = true
+  elseif gameBoard.AIPoints >= 25 then
+    gameLost = true
+  end
+
   
   
-  -- reset mouse flags at the end of each update cycle
-  love.mouse.buttonsPressed = {}
-  love.mouse.buttonsReleased = {}
 end
 
 function love.draw()
   
   gameBoard:draw()
+  
+  if gameWon then
+    love.graphics.draw(you_win, 100, 0, 0, 0.75, 0.75)
+  elseif gameLost then
+    love.graphics.draw(you_lost, 0, 0, 0, 1.2, 1)
+  end
   
 end
 
@@ -43,10 +71,10 @@ end
 function love.keypressed(key)
     if key == 'escape' then
         love.event.quit()
-    --[[elseif key == "r" then
+    elseif key == "r" then
       gameWon = false
+      gameLost = false
       love.load()
-    ]]--
     end
 end
 
