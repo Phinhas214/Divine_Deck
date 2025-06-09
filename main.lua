@@ -57,6 +57,13 @@ end
 
 function love.draw()
   
+--  love.graphics.push()
+--  love.graphics.scale(0.90, 0.90)
+
+--  gameBoard:draw()
+
+--  love.graphics.pop()
+  
   gameBoard:draw()
   
   if gameWon then
