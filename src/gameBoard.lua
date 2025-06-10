@@ -190,7 +190,6 @@ function GameBoard:update()
   end
   
   
-  -- TODO: Fix this to automatically draw from deck to hand each turn
   if #self.playerDeck > 0 then
     for i=#self.playerDeck, 1, -1 do
       self.playerDeck[i]:update()
@@ -517,7 +516,7 @@ end
 function GameBoard:cleanUp()
   -- if card power is zero, then discard the card
   for i=#self.AIPlayArea, 1, -1 do
-    if self.AIPlayArea[i].power == 0 then
+    if self.AIPlayArea[i].power <= 0 then
       self:discardCard(self.AIPlayArea[i])
       table.remove(self.AIPlayArea, i)
     end
@@ -525,7 +524,7 @@ function GameBoard:cleanUp()
   
   
   for i=#self.playArea, 1, -1 do
-    if self.playArea[i].power == 0 then
+    if self.playArea[i].power <= 0 then
       self:discardCard(self.playArea[i])
       table.remove(self.playArea, i)
     end

@@ -19,9 +19,9 @@ aphrodite,3,4,When Revealed: Lower the power of each enemy card here by 1.
 apollo,2,3,When Revealed: Gain +1 mana next turn.
 persephone,2,4,When Revealed: Discard the lowest power card in your hand.
 prometheus,3,4,When Revealed: Draw a card from your opponent’s deck.
-Midas,4,4,When Revealed: Set ALL cards here to 3 power.
-Athena,2,2,Gain +1 power when you play another card here.
-Hephaestus,3,2,When Revealed: Lower the cost of 2 cards in your hand by 1.
-Pandora,4,8,When Revealed: If no ally cards are here, lower this card’s power by 5.
-Nyx,4,1,When Revealed: Discards your other cards here, add their power to this card.
+midas,4,4,When Revealed: Set ALL cards here to 3 power.
+athena,2,2,When Revealed: Gain +1 power when you play another card here.
+hephaestus,3,2,When Revealed: Lower the cost of 2 cards in your hand by 1.
+pandora,4,8,When Revealed: If no ally cards are here lower this card’s power by 5.
+nyx,4,1,When Revealed: Discards your other cards here add their power to this card.
 
