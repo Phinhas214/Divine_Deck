@@ -13,7 +13,7 @@ function GameBoard:init()
   self.discardPile = {}
   
   self.AIPlayArea = {}
-  self.AIHand = {}
+  self.AIHands = {}
   -- self.AIPlayArea = {}
   
   self.pickedUpCards = {}
@@ -35,6 +35,7 @@ function GameBoard:init()
   self:generatePlayerDeck()
   self:generateAIDeck()
   self:generatePlayerHand()
+  self:generateAIHand()
   
 end
 
@@ -44,7 +45,21 @@ function GameBoard:generatePlayerHand()
     card.x = LOCATION_PLAYER_HAND[i][1]
     card.y = LOCATION_PLAYER_HAND[i][2]
     card.hidden = false
+    card.originalPile = self.hands
+    card.location = LOCATION_LIST.HAND
     table.insert(self.hands, card)
+  end
+end
+
+function GameBoard:generateAIHand()
+  for i=1, 3 do
+    local card = table.remove(self.AIDeck)
+    card.x = LOCATION_AI_HAND[i][1]
+    card.y = LOCATION_AI_HAND[i][2]
+    card.hidden = true
+    card.originalPile = self.AIHands
+    card.location = LOCATION_LIST.AIHAND
+    table.insert(self.AIHands, card)
   end
 end
 
@@ -65,8 +80,6 @@ function GameBoard:draw()
   
   self:drawBackground()
   
-  -- TODO: if mouse hover over card set text to card info
-  -- TODO: pass card as a parameter
   local tempCard = {
     cost = "",
     power = "",
@@ -96,6 +109,10 @@ function GameBoard:draw()
     self.hands[i]:draw()
   end
   
+  for i = 1, #self.AIHands do
+    self.AIHands[i]:draw()
+  end
+  
   for i = 1, #self.discardPile do
     self.discardPile[i]:draw()
   end
@@ -117,6 +134,15 @@ function GameBoard:update()
     if checkMouseOver(mouseX, mouseY, card.x, card.y) then
       self.hoveredCard = card
       break
+    end
+  end
+  
+  if not self.hoveredCard then
+    for i, card in ipairs(self.AIHands) do
+      if checkMouseOver(mouseX, mouseY, card.x, card.y) then
+        self.hoveredCard = card
+        break
+      end
     end
   end
   
@@ -304,6 +330,38 @@ function GameBoard:randomHandLocation()
   return nil, nil
 end
 
+function GameBoard:randomAIHandLocation()
+  local locationID = LOCATION_LIST.AIHAND
+  
+  local tries = 0
+  local maxTries = 48
+  
+  while tries < maxTries do
+    local randIndex = math.random(1, 7)
+    local pos = LOCATION_AI_HAND[randIndex]
+    
+    local occupied = false
+    for _, card in ipairs(self.AIHands) do
+      if card.x == pos[1] and card.y == pos[2] then
+        occupied = true
+        break
+      end
+    end
+    
+
+    if not occupied then
+      return pos, locationID
+    end
+    
+    tries = tries + 1
+  end
+  
+  print("WARNING: Could not find unoocupied random hand location.")
+  return nil, nil
+end
+
+
+
 function GameBoard:discardCard(card)
   if card == nil then
     print("Warning: nil card passed to discardCard()")
@@ -338,15 +396,15 @@ function GameBoard:submitTurn()
   
   -- 2. Try to find a valid card the AI can afford
   local validCard = nil
-  local maxAttempts = #self.AIDeck
+  local maxAttempts = #self.AIHands + 10
   local attempts = 0
   
   while attempts < maxAttempts do
-    local index = math.random(#self.AIDeck)
-    local candidate = self.AIDeck[index]
+    local index = math.random(#self.AIHands)
+    local candidate = self.AIHands[index]
     
     if candidate.cost <= self.AIMana then
-      validCard = table.remove(self.AIDeck, index)
+      validCard = table.remove(self.AIHands, index)
       break
     end
     
@@ -365,7 +423,7 @@ function GameBoard:submitTurn()
   
   if #self.AIPlayArea == 12 then
     print("AI play area full. Can't place more cards.")
-    table.insert(self.AIDeck, validCard)
+    table.insert(self.AIHands, validCard)
     
     self.currentGameState = TURN_STATE.REVEAL
     return
@@ -395,22 +453,13 @@ end
 function GameBoard:revealCards()
   local playerPoints = 0
   local AIPoints = 0
-  for _, card in ipairs(self.playArea) do
+  
+  for _, card in ipairs(self.playArea) do 
     card.hidden = false
-    playerPoints = playerPoints + card.power
-
   end
   
-  for _, card in ipairs(self.AIPlayArea) do
+  for _, card in ipairs(self.AIPlayArea) do 
     card.hidden = false
-    AIPoints = AIPoints + card.power
-  end
-  
-  local totalPoints = playerPoints - AIPoints
-  if totalPoints > 0 then
-    self.playerPoints = self.playerPoints + totalPoints
-  elseif totalPoints < 0 then
-    self.AIPoints = self.AIPoints + math.abs(totalPoints)
   end
   
   -- process card effects here
@@ -431,6 +480,22 @@ function GameBoard:revealCards()
       print("ID: " .. card.id)
       CardEffects[card.id:lower()](card, gameBoard)
     end
+  end
+  
+  
+  for _, card in ipairs(self.playArea) do
+    playerPoints = playerPoints + card.power
+  end
+  
+  for _, card in ipairs(self.AIPlayArea) do
+    AIPoints = AIPoints + card.power
+  end
+  
+  local totalPoints = playerPoints - AIPoints
+  if totalPoints > 0 then
+    self.playerPoints = self.playerPoints + totalPoints
+  elseif totalPoints < 0 then
+    self.AIPoints = self.AIPoints + math.abs(totalPoints)
   end
   
   
@@ -478,7 +543,6 @@ function GameBoard:cleanUp()
   
   local transferCard = table.remove(self.playerDeck)
   table.insert(self.hands, transferCard)
-  -- Card:init(id, x, y, loc, pile, cost, power, text)
   
   
   
@@ -487,6 +551,27 @@ function GameBoard:cleanUp()
   transferCard.location = locationID
   transferCard.originalPile = self.hands 
   transferCard.hidden = false
+  
+  self.currentGameState = TURN_STATE.PLAYER
+  
+  local AIPos, AILocationID = self:randomAIHandLocation()
+  
+  if AIPos == nil or AILocationID == nil then
+    self.currentGameState = TURN_STATE.PLAYER
+    return
+  end
+  
+  
+  local AItransferCard = table.remove(self.AIDeck)
+  table.insert(self.AIHands, AItransferCard)
+  
+  
+  
+  AItransferCard.x = AIPos[1]
+  AItransferCard.y = AIPos[2]
+  AItransferCard.location = AILocationID
+  AItransferCard.originalPile = self.AIHands 
+  AItransferCard.hidden = true
   
   self.currentGameState = TURN_STATE.PLAYER
   
@@ -552,6 +637,8 @@ function GameBoard:drawBackground()
   
   self:renderPlayerHands()
   
+  self:renderAIHands()
+  
   -- Player Draw pile
   local xPos = LOCATION_DECK[1]
   local yPos = LOCATION_DECK[2]
@@ -567,7 +654,7 @@ function GameBoard:renderLayoutDividers()
   -- love.graphics.setColor(1, 1, 1)
   love.graphics.setColor(0.35, 0.21, 0.36, 1)
   --dividers
-  love.graphics.line(0, 375, 900, 375)
+  love.graphics.line(0, 450, 900, 450)
   love.graphics.line(900, 0, 900, 700)
   love.graphics.line(900, 700, SCREEN_WIDTH, 700)
   -- mid point = 1050
@@ -632,6 +719,14 @@ function GameBoard:renderPlayerHands()
   for i=1, 7 do
     local x = LOCATION_PLAYER_HAND[i][1]
     local y = LOCATION_PLAYER_HAND[i][2]
+    love.graphics.rectangle("fill", x, y, CARD_WIDTH, CARD_HEIGHT, 2)
+  end
+end
+
+function GameBoard:renderAIHands()
+  for i=1, 7 do
+    local x = LOCATION_AI_HAND[i][1]
+    local y = LOCATION_AI_HAND[i][2]
     love.graphics.rectangle("fill", x, y, CARD_WIDTH, CARD_HEIGHT, 2)
   end
 end

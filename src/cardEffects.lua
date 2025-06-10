@@ -184,8 +184,8 @@ CardEffects = {
     print("When Revealed: Give cards in your hand +1 power.")
     
     if card.originalPile == gameBoard.AIPlayArea then
-      for i=1, #gameBoard.AIPlayArea do
-        gameBoard.AIPlayArea[i].power = gameBoard.AIPlayArea[i].power + 1
+      for i=1, #gameBoard.AIHands do
+        gameBoard.AIHands[i].power = gameBoard.AIHands[i].power + 1
       end
     elseif card.originalPile == gameBoard.playArea then
       for i=1, #gameBoard.hands do
@@ -282,52 +282,6 @@ CardEffects = {
     
   end,
   
-  hydra = function(card, gameBoard)
-    print("hydra")
-    print("Add two copies to your hand when this card is discarded.")
-    
-    if card.location ~= LOCATION_LIST.DISCARD then
-      return
-    end
-    
-     -- we'll clone the card and insert into hand
-    if card.originalPile == gameBoard.playArea then
-      for i=1, 2 do
-        local clone = card:clone()
-        local tries = 0
-        
-        local randIndex = math.random(1, 7)
-        local handPos = LOCATION_PLAYER_HAND[randIndex]
-        while gameBoard:inArray(gameBoard.hands, handPos) and #gameBoard.hands < 7 do
-          randIndex = math.random(1, 7)
-          tries = tries + 1
-        end
-        
-        if #gameBoard.hands == 7 then
-          print("hand area full. Can't place more cards.")
-          return
-        end
-        
-        clone.x = handPos[1]
-        clone.y = handPos[2]
-        
-        clone.hidden = false
-        clone.originalPile = gameBoard.hands 
-        clone.location = LOCATION_LIST.HAND
-        
-        table.insert(gameBoard.hands, clone)
-      end
-      
-    elseif card.originalPile == gameBoard.AIPlayArea then
-      for i=1, 2 do
-        local clone = card:clone()
-        table.insert(gameBoard.AIDeck, clone)
-      end
-    end
-    
-  end,
-  
-  
   aphrodite = function(card, gameBoard)
     print("aphrodite")
     print("When Revealed: Lower the power of each enemy card here by 1.")
@@ -378,15 +332,15 @@ CardEffects = {
       table.remove(gameBoard.hands, minPowerIndex)
       
     elseif card.originalPile == gameBoard.AIPlayArea then
-      for i=1, #gameBoard.AIDeck do
-        if gameBoard.AIDeck[i].power < minPower then
+      for i=1, #gameBoard.AIHands do
+        if gameBoard.AIHands[i].power < minPower then
           minPower = gameBoard.AIDeck[i].power 
           minPowerIndex = i
         end
       end 
       
-      gameBoard:discardCard(gameBoard.AIDeck[minPowerIndex])
-      table.remove(gameBoard.AIDeck, minPowerIndex)
+      gameBoard:discardCard(gameBoard.AIHands[minPowerIndex])
+      table.remove(gameBoard.AIHands, minPowerIndex)
     end
     
   end,
@@ -407,6 +361,9 @@ CardEffects = {
       
     elseif card.originalPile == gameBoard.AIPlayArea then
       local stolenCard = table.remove(gameBoard.playerDeck)
+      stolenCard.location = LOCATION_LIST.DECK
+      stolenCard.originalPile = gameBoard.AIDeck
+      stolenCard.hidden = true
       table.insert(gameBoard.AIDeck, stolenCard)
       print("num of pile after stealing card: " .. #gameBoard.AIDeck)
     end
