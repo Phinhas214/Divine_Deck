@@ -20,8 +20,18 @@ cardImages = {}
 backImage = {}
   
   local csv = require "lib/csv" 
-  local dataFile = string.format("data/cardData.csv")
-  local file = csv.open(dataFile)
+  local file = nil
+  
+  local success, contents = pcall(love.filesystem.read, "data/cardData.csv")
+  
+  if not success or not contents then
+    print("Error: could not read CSV file")
+  else
+    
+    file = csv.openstring(contents)
+  end
+  
+  
 
   -- parse all the lines
   if file then
@@ -47,7 +57,7 @@ backImage = {}
     -- close file
     file:close()
   else
-    print("ERROR: " .. dataFile)
+    print("ERROR: " .. contents)
   end
   
   
@@ -60,7 +70,7 @@ backImage = {}
   end
   
   
-  backImage = love.graphics.newImage("assets/card_sprites/back.png")
+  backImage = love.graphics.newImage("assets/back.png")
   you_win = love.graphics.newImage("assets/you_win.png")
   you_lost = love.graphics.newImage("assets/you_lost.png")
   
