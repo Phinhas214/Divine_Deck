@@ -3,32 +3,22 @@
 CardEffects = {
   -- TODO: fix sapcing issue when read from cardData.csv
   wooden_cow = function(card, gameBoard)
-    print("wooden cow")
-    print("vanilla")
     return
   end,
   
   pegasus = function(card, gameBoard)
-    print("pegasus")
-    print("vanilla")
     return
   end,
   
   minotaur = function(card, gameBoard)
-    print("minotaur")
-    print("vanilla")
     return
   end,
   
   titan = function(card, gameBoard)
-    print("titan")
-    print("vanilla")
     return
   end,
   
   zeus = function(card, gameBoard)
-    print("zeus")
-    print("When Revealed: Lower the power of each card in your opponent’s locations by 1.")
     if card.originalPile == gameBoard.playArea then
       for i=1, #gameBoard.AIPlayArea do
         gameBoard.AIPlayArea[i].power = gameBoard.AIPlayArea[i].power - 1
@@ -42,8 +32,6 @@ CardEffects = {
   end,
 
   ares = function(card, gameBoard)
-    print("ares")
-    print("When Revealed: Gain +2 power for each enemy card here.")
     local powerGained = 0
     
     if card.originalPile == gameBoard.AIPlayArea then
@@ -66,8 +54,6 @@ CardEffects = {
   end,
   
   medusa = function(card, gameBoard)
-    print("medusa")
-    print("When ANY other card is played here, lower that card’s power by 1.")
     
     for i=1, #gameBoard.playArea do
       if gameBoard.playArea[i].location == card.location and gameBoard.playArea[i] ~= card then
@@ -82,8 +68,6 @@ CardEffects = {
   end,
   
   cyclops = function(card, gameBoard)
-    print("cyclops")
-    print("When Revealed: Discard your other cards here, gain +2 power for each discarded.")
     local powerGained = 0
     
     if card.originalPile == gameBoard.AIPlayArea then
@@ -114,8 +98,6 @@ CardEffects = {
   
   
   poseidon = function(card, gameBoard)
-    print("poseidon")
-    print("When Revealed: Move away an enemy card here with the lowest power.")
     local minPower = 999
     local minPowerCard = nil
     local minPowerIndex = nil
@@ -151,13 +133,8 @@ CardEffects = {
   end,
   
   artemis = function(card, gameBoard)
-    print("artemis")
-    print("When Revealed: Gain +5 power if there is exactly one enemy card here.")
     
     local counter = 0
-    
-    
-    
     
     if card.originalPile == gameBoard.AIPlayArea then
       for i=1, #gameBoard.playArea do
@@ -180,8 +157,6 @@ CardEffects = {
   end,
   
   hera = function(card, gameBoard)
-    print("hera")
-    print("When Revealed: Give cards in your hand +1 power.")
     
     if card.originalPile == gameBoard.AIPlayArea then
       for i=1, #gameBoard.AIHands do
@@ -195,8 +170,6 @@ CardEffects = {
   end,
   
   hades = function(card, gameBoard)
-    print("hades")
-    print("When Revealed: Gain +2 power for each card in the discard pile.")
     
     local powerGained = 0
     
@@ -209,12 +182,10 @@ CardEffects = {
   end,
   
   hercules = function(card, gameBoard)
-    print("hercules")
-    print("When Revealed: Doubles its power if it’s the strongest card here.")
     
     for i=1, #gameBoard.AIPlayArea do
       if card.location == gameBoard.AIPlayArea[i].location then
-        if gameBoard.AIPlayArea[i].power >= card.power then
+        if gameBoard.AIPlayArea[i].power >= card.power and gameBoard.AIPlayArea[i] ~= card then
           return
         end
       end
@@ -222,7 +193,7 @@ CardEffects = {
     
     for i=1, #gameBoard.playArea do
       if card.location == gameBoard.playArea[i].location then
-        if gameBoard.playArea[i].power >= card.power then
+        if gameBoard.playArea[i].power >= card.power and gameBoard.playArea[i] ~= card then
           return
         end
       end
@@ -233,8 +204,6 @@ CardEffects = {
   end,
   
   dionysus = function(card, gameBoard)
-    print("dionysus")
-    print("When Revealed: Gain +2 power for each of your other cards here.")
     
     local powerGained = 0
     
@@ -257,8 +226,6 @@ CardEffects = {
   end,
   
   hermes = function(card, gameBoard)
-    print("hermes")
-    print("When Revealed: Moves to another location.")
     
     local randPosition = nil
     local locationID = nil
@@ -283,8 +250,6 @@ CardEffects = {
   end,
   
   aphrodite = function(card, gameBoard)
-    print("aphrodite")
-    print("When Revealed: Lower the power of each enemy card here by 1.")
     
     if card.originalPile == gameBoard.playArea then
       for i=1, #gameBoard.AIPlayArea do
@@ -304,8 +269,6 @@ CardEffects = {
   end,
   
   apollo = function(card, gameBoard)
-    print("apollo")
-    print("When Revealed: Gain +1 mana next turn.")
     
     if card.originalPile == gameBoard.playArea then
       gameBoard.playerBonusManaNextTurn = gameBoard.playerBonusManaNextTurn + 1
@@ -316,8 +279,6 @@ CardEffects = {
   end,
   
   persephone = function(card, gameBoard)
-    print("persephone")
-    print("When Revealed: Discard the lowest power card in your hand.")
     local minPower = 999
     local minPowerIndex = nil
     if card.originalPile == gameBoard.playArea then
@@ -346,8 +307,6 @@ CardEffects = {
   end,
   
   prometheus = function(card, gameBoard)
-    print("prometheus")
-    print("When Revealed: Draw a card from your opponent’s deck.")
     
     if card.originalPile == gameBoard.playArea then
       local stolenCard = table.remove(gameBoard.AIDeck)
@@ -357,7 +316,6 @@ CardEffects = {
       stolenCard.location = LOCATION_LIST.DECK
       stolenCard.originalPile = gameBoard.playerDeck
       stolenCard.hidden = true
-      print("num of pile after stealing card: " .. #gameBoard.playerDeck)
       
     elseif card.originalPile == gameBoard.AIPlayArea then
       local stolenCard = table.remove(gameBoard.playerDeck)
@@ -365,14 +323,11 @@ CardEffects = {
       stolenCard.originalPile = gameBoard.AIDeck
       stolenCard.hidden = true
       table.insert(gameBoard.AIDeck, stolenCard)
-      print("num of pile after stealing card: " .. #gameBoard.AIDeck)
     end
     
   end, 
   
   midas = function(card, gameBoard)
-    print("midas")
-    print("When Revealed: Set ALL cards here to 3 power.")
     
     for i=1, #gameBoard.playArea do
       if gameBoard.playArea[i].location == card.location then
@@ -389,8 +344,6 @@ CardEffects = {
   end,
   
   athena = function(card, gameBoard)
-    print("athena")
-    print("Gain +1 power when you play another card here.")
     
     if card.originalPile == gameBoard.playArea then
       for i=1, #gameBoard.playArea do
@@ -410,8 +363,6 @@ CardEffects = {
   end,
   
   hephaestus = function(card, gameBoard)
-    print("hephaestus")
-    print("When Revealed: Lower the cost of 2 cards in your hand by 1.")
     local firstCard = nil
     local secondCard = nil
     if card.originalPile == gameBoard.playArea then
@@ -436,8 +387,6 @@ CardEffects = {
   end, 
   
   pandora = function(card, gameBoard)
-    print("pandora")
-    print("Revealed: If no ally cards are here, lower this card’s power by 5.")
     local allyCardCount = 0
     if card.originalPile == gameBoard.playArea then
       for i=1, #gameBoard.playArea do
@@ -467,8 +416,6 @@ CardEffects = {
   end,
   
   nyx = function(card, gameBoard)
-    print("nyx")
-    print("When Revealed: Discards your other cards here, add their power to this card.")
     
     local powerGained = 0
     

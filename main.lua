@@ -38,16 +38,16 @@ function love.update(dt)
   end
   
   -- win condition check
-  if gameBoard.playerPoints >= 1000 and gameBoard.AIPoints >= 1000 then
+  if gameBoard.playerPoints >= 25 and gameBoard.AIPoints >= 25 then
     if gameBoard.playerPoints > gameBoard.AIPoints then
       gameWon = true
     elseif gameBoard.AIPoints > gameBoard.playerPoints then
       gameLost = true
     end
     
-  elseif gameBoard.playerPoints >= 1000 then
+  elseif gameBoard.playerPoints >= 25 then
     gameWon = true
-  elseif gameBoard.AIPoints >= 1000 then
+  elseif gameBoard.AIPoints >= 25 then
     gameLost = true
   end
 
@@ -58,13 +58,11 @@ end
 function love.draw()
   
   love.graphics.push()
---  love.graphics.scale(0.85, 0.85)
 
   gameBoard:draw()
 
   love.graphics.pop()
   
-  -- gameBoard:draw()
   
   if gameWon then
     love.graphics.draw(you_win, 100, 0, 0, 0.75, 0.75)

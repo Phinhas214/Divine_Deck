@@ -50,12 +50,6 @@ backImage = {}
     print("ERROR: " .. dataFile)
   end
   
---  for id, _ in pairs(cardData) do
---    if id == "Card Name" then
---      table.remove(cardData, id)
---    end
---  end
-  
   
   for id, _ in pairs(cardData) do
     -- print(id)

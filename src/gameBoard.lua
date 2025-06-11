@@ -377,10 +377,7 @@ function GameBoard:discardCard(card)
   card.originalPile = self.discardPile
   card.hidden = false
   table.insert(gameBoard.discardPile, card)
-  
-  for i=1, #gameBoard.discardPile do
-    print("discarded card: " .. gameBoard.discardPile[i].id)
-  end
+
   
 end
 
@@ -411,7 +408,6 @@ function GameBoard:submitTurn()
   end
   
   if not validCard then
-    print("AI has no affordable cards.")
     self.currentGameState = TURN_STATE.REVEAL
     return
   end
@@ -421,7 +417,6 @@ function GameBoard:submitTurn()
   local locationTries = 0
   
   if #self.AIPlayArea == 12 then
-    print("AI play area full. Can't place more cards.")
     table.insert(self.AIHands, validCard)
     
     self.currentGameState = TURN_STATE.REVEAL
@@ -439,7 +434,6 @@ function GameBoard:submitTurn()
   validCard.x, validCard.y = randomLocation[1], randomLocation[2]
   validCard.hidden = true
   validCard.location = locationID
-  -- print("ai loc: " .. locationID)
   validCard.originalPile = self.AIPlayArea 
   
   table.insert(self.AIPlayArea, validCard)
@@ -462,7 +456,6 @@ function GameBoard:revealCards()
   end
   
   -- process card effects here
-  print("process player card effects here")
   for i=1, #self.playArea do
     local card = self.playArea[i]
     if card ~= nil then
@@ -472,11 +465,9 @@ function GameBoard:revealCards()
   end
   
   
-  print("process AI card effects here")
   for i=1, #self.AIPlayArea do
     local card = self.AIPlayArea[i]
     if card ~= nil then
-      print("ID: " .. card.id)
       CardEffects[card.id:lower()](card, gameBoard)
     end
   end
@@ -507,7 +498,6 @@ function GameBoard:revealCards()
   
   self.playerBonusManaNextTurn = 0
   self.AIBonusManaNextTurn = 0
-  -- print("go to cleanup state")
   
   self.currentGameState = TURN_STATE.CLEANUP
 end
@@ -560,11 +550,8 @@ function GameBoard:cleanUp()
     return
   end
   
-  
   local AItransferCard = table.remove(self.AIDeck)
   table.insert(self.AIHands, AItransferCard)
-  
-  
   
   AItransferCard.x = AIPos[1]
   AItransferCard.y = AIPos[2]
@@ -581,12 +568,9 @@ end
 function GameBoard:setText(card)
   love.graphics.setColor(1, 1, 1)
   
-  
-  
   local cardCost = card.cost
   local cardPower = card.power
   local description = card.text
-  
   
   love.graphics.setFont(font)
   

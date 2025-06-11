@@ -98,8 +98,6 @@ end
 
 function Card:pickUp(cardLocation, pile)
   
-  --print(self.location)
-  
   self.originalX = self.x
   self.originalY = self.y
   self.originalPile = pile
@@ -270,10 +268,6 @@ function Card:placeDown(valid, pos, cardLocation)
     gameBoard.playerMana = gameBoard.playerMana - self.cost
     
   end
-  
---  print("deck: " .. #gameBoard.playerDeck)
---  print("hand: " .. #gameBoard.hands)
---  print("play locations: " .. #gameBoard.playArea)
 
   removeValue(gameBoard.pickedUpCards, self)
   
