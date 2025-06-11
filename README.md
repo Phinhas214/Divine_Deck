@@ -1,3 +1,9 @@
+## List of Added Features
+- AI now has visible hand pile
+- Added a Win/Lose Screen
+- Fixed stacking logic error (cards being on top of one another)
+- Added more cards 
+- Card Data is being read from a CSV file
 
 ## Programming Patterns Used
 - Prototype pattern: used in cardEffects through card:clone() method
